@@ -1,9 +1,14 @@
 const userModel = require("../models/userModel");
+const noty = require("../models/noty")
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { findByIdAndUpdate } = require("../models/userModel");
 
 const cloudinary = require("cloudinary").v2;
+
+const { Kafka } = require("../client");
+
+const group = process.argv[2];
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_USER_NAME,
@@ -331,6 +336,44 @@ const update_profile_image =  async (req, res)=>{
    }
 }
 
+
+
+const init =  async ()=>{
+  const consumer = Kafka.consumer({ groupId: "group1" });
+  await consumer.connect();
+
+  await consumer.subscribe({ topics: ["post-topic"], fromBeginning: true });
+
+  await consumer.run({
+    eachMessage: async ({ topic, partition, message, heartbeat, pause }) => {
+      
+        // try {
+            const notification = new noty({
+                // topic:topic,
+                // partition:partition,
+                messageFromKafka:message.value.toString()
+            });
+        
+            const saveNotification = await notification.save();
+        
+            if (saveNotification) {
+                console.log(
+                    `${group}: [${topic}]: PART:${partition}:`,
+                    message.value.toString()  
+                )
+             }
+        //   }catch (error) {
+        //     console.log(error);
+        //     res.status(500).json({ msg: error.message });
+        //   } 
+        }
+     
+});
+}
+
+
+// init();
+
 module.exports = { 
     get_login,
     get_register, 
@@ -342,5 +385,6 @@ module.exports = {
     delete_user,
     verify_user,
     active_user,
-    update_profile_image
+    update_profile_image,
+    init
 };

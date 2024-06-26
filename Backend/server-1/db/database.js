@@ -8,7 +8,7 @@ mongoose.connect( MONGO_URI, {
     useUnifiedTopology: true
 })
 .then(()=>{
-    console.log("DB Connected Successfully !!");
+    console.log("DB Connected Successfully on server-1");
 })
 .catch((error)=>{
     console.log(error);

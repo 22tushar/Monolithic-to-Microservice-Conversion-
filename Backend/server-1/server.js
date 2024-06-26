@@ -10,7 +10,9 @@ require("dotenv").config();
 
 const fileUpload = require("express-fileupload");
 
+const {init} = require('./controllers/authControllers')
 const PORT = process.env.PORT || 8000;
+
 
 // ########################################################################
 
@@ -35,7 +37,7 @@ app.use(fileUpload({
 app.use("/api/auth/", require("./routes/authRoutes"));
 // app.use("/api/posts/", require("./routes/postRoutes"));
 // app.use("/api/comments/", require("./routes/commentRoutes"));
-
+init()
 // ########################################################################
 app.listen(PORT, () => {
     console.log(`Server is listening on http://localhost:${PORT}`);
