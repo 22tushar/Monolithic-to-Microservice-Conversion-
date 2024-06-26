@@ -34,7 +34,7 @@ app.use(fileUpload({
 // routes
 // app.use("/api/auth/", require("./routes/authRoutes"));
 app.use("/api/posts/", require("./routes/postRoutes"));
-app.use("/api/comments/", require("./routes/commentRoutes"));
+// app.use("/api/comments/", require("./routes/commentRoutes"));
 
 // ########################################################################
 app.listen(PORT, () => {

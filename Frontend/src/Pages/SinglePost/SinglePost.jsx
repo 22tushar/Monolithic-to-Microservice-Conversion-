@@ -78,7 +78,7 @@ const SinglePost = () => {
     console.log(postId);
 
     try {
-      const res = await axios.post(`/api/posts/like-dislike/${postId}`, {
+      const res = await axios.post(`http://localhost:8001/api/posts/like-dislike/${postId}`, {
         userId: activeUser?._id,
       });
 

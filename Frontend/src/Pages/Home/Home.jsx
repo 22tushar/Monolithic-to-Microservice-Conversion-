@@ -106,7 +106,7 @@ const Home = () => {
       // fetch comments
       const fetchComments = async () =>{
         try{
-          const res = await axios.get("http://localhost:8001/api/comments/all-comments");
+          const res = await axios.get("http://localhost:8002/api/comments/all-comments");
 
           if(res.status === 200){
             dispatchComments({ type : "SET_COMMENTS" , payload : res.data.comments});

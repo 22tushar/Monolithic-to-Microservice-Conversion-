@@ -17,7 +17,7 @@ const Comments = ({ post }) => {
     e.preventDefault();
 
     try {
-      const res = await axios.post(`http://localhost:8001/api/comments/comment/${activeUser?._id}`, {
+      const res = await axios.post(`http://localhost:8002/api/comments/comment/${activeUser?._id}`, {
         postId: post._id,
         comment: comment,
       });

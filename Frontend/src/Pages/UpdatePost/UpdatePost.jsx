@@ -84,7 +84,7 @@ const UpdatePost = () => {
 
   const loadPost = async () =>{
     try{
-       const res = await axios.get(`http://localhost:8000/api/posts/post/${id}`);
+       const res = await axios.get(`http://localhost:8001/api/posts/post/${id}`);
 
        if(res.status === 200){
           setTitle(res.data.post.title);

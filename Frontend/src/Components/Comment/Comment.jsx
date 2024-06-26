@@ -19,7 +19,7 @@ const Comment = ({comment, post}) => {
     console.log(id)
     try{
 
-      const res = await axios.delete(`http://localhost:8001/api/comments/delete-comment/${id}`);
+      const res = await axios.delete(`http://localhost:8002/api/comments/delete-comment/${id}`);
 
       if(res.status === 200){
         dispatchComments({type :"DELETE_COMMENT", payload : res.data.comment});
