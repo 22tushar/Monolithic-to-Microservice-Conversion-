@@ -1,7 +1,7 @@
 
 const router = require("express").Router();
 const { create_post, get_post, all_posts, delete_post, update_post, like_dislike  } = require("../controllers/postController");
-
+const {Kafka} = require('../client')
 router.post("/create-post", create_post);
 router.get("/post/:id", get_post);
 router.get("/posts", all_posts);

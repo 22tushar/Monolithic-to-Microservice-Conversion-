@@ -1,58 +1,64 @@
-const cloudinary = require("cloudinary").v2;
+// const cloudinary = require("cloudinary").v2;
 const postModel = require("../models/postModel");
+const { kafka } = require("../client");
 
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_USER_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+// cloudinary.config({
+//   cloud_name: process.env.CLOUDINARY_USER_NAME,
+//   api_key: process.env.CLOUDINARY_API_KEY,
+//   api_secret: process.env.CLOUDINARY_API_SECRET,
+// });
 
 const create_post = async (req, res) => {
-
-  console.log("server 2")
+  console.log("server 2");
   try {
     console.log(req.body);
 
-    const file = req.files.blogImage;
+    // Assuming file upload is commented out for simplicity
+    // const file = req.files.blogImage;
 
-    cloudinary.uploader.upload(file.tempFilePath, async (err, result) => {
-      console.log(result);
-      try {
-        if (result) {
-          console.log(result.url);
-          console.log(req.body.activeUserId)
+    // cloudinary.uploader.upload(file.tempFilePath, async (err, result) => {
+    //   console.log(result);
 
-          const post = new postModel({
-            title: req.body.title,
-            description: req.body.description,
-            category: req.body.category,
-            authorId : req.body.activeUserId,
-            postImage: result.url,
-          });
+    // Skipping image handling for now
+    // if (result) {
+    console.log(req.body.activeUserId);
 
-          const savePost = await post.save();
-
-          if (savePost) {
-            res
-              .status(200)
-              .json({ post: savePost, msg: "Post created successfully !!" });
-
-              console.log("Post created successfully")
-          } else {
-            res.json({ msg: "Something wents wrong" });
-          }
-        } else {
-          console.log(err);
-          res.json({ msg: err });
-        }
-      } catch (error) {
-        res.json({ msg: error.message });
-      }
+    const post = new postModel({
+      title: req.body.title,
+      description: req.body.description,
+      category: req.body.category,
+      authorId: req.body.activeUserId,
+      // postImage: result.url, // Commented out image handling
     });
+
+    const savePost = await post.save();
+
+    if (savePost) {
+      const producer = kafka.producer();
+
+      await producer.connect(); // Ensure the producer connects
+      await producer.send({
+        topic: 'post-topic',
+        messages: [{ key: 'post', value: JSON.stringify({ savePost }) }],
+      });
+
+      console.log("Topic created!");
+      console.log("Post created successfully");
+
+      res.status(200).json({ post: savePost, msg: "Post created successfully !!" });
+    } else {
+      res.status(400).json({ msg: "Something went wrong" });
+    }
+    // } else {
+    //   console.log(err);
+    //   res.status(400).json({ msg: err });
+    // }
   } catch (error) {
     console.log(error);
+    res.status(500).json({ msg: error.message });
   }
 };
+
 
 // get post
 const get_post = async (req, res) => {
