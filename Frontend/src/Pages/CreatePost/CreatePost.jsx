@@ -137,7 +137,7 @@ const CreatePost = () => {
               setImageSelected(true);
             }}
 
-            required
+           
           />
           <br />
           {imageSelected ?<img className="prev-image" width={200} height={150} src={prevImage} alt="image preview" /> : ""}
