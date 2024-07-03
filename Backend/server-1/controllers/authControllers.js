@@ -5,8 +5,6 @@ const { findByIdAndUpdate } = require("../models/userModel");
 
 const cloudinary = require("cloudinary").v2;
 
-
-
 const group = process.argv[2];
 
 cloudinary.config({
