@@ -7,28 +7,28 @@ const { kafka } = require("../client");
 //   api_key: process.env.CLOUDINARY_API_KEY,
 //   api_secret: process.env.CLOUDINARY_API_SECRET,
 // });
+const Redis = require('ioredis');
+
+const redisClient = new Redis();
+
+redisClient.on('error', (err) => {
+  console.log('Redis error: ', err);
+});
+
+redisClient.on('connect', () => {
+  console.log('Connected to Redis');
+});
 
 const create_post = async (req, res) => {
   console.log("server 2");
   try {
     console.log(req.body);
 
-    // Assuming file upload is commented out for simplicity
-    // const file = req.files.blogImage;
-
-    // cloudinary.uploader.upload(file.tempFilePath, async (err, result) => {
-    //   console.log(result);
-
-    // Skipping image handling for now
-    // if (result) {
-    console.log(req.body.activeUserId);
-
     const post = new postModel({
       title: req.body.title,
       description: req.body.description,
       category: req.body.category,
       authorId: req.body.activeUserId,
-      // postImage: result.url, // Commented out image handling
     });
 
     const savePost = await post.save();
@@ -36,11 +36,13 @@ const create_post = async (req, res) => {
     if (savePost) {
       const producer = kafka.producer();
 
-      await producer.connect(); // Ensure the producer connects
+      await producer.connect();
       await producer.send({
         topic: 'post-topic',
         messages: [{ key: 'post', value: JSON.stringify({ savePost }) }],
       });
+
+      await redisClient.del('allPosts');
 
       console.log("Topic created!");
       console.log("Post created successfully");
@@ -49,16 +51,11 @@ const create_post = async (req, res) => {
     } else {
       res.status(400).json({ msg: "Something went wrong" });
     }
-    // } else {
-    //   console.log(err);
-    //   res.status(400).json({ msg: err });
-    // }
   } catch (error) {
     console.log(error);
     res.status(500).json({ msg: error.message });
   }
 };
-
 
 // get post
 const get_post = async (req, res) => {
@@ -82,17 +79,22 @@ const get_post = async (req, res) => {
 
 // all posts
 const all_posts = async (req, res) => {
-  try{
-
-    const posts = await postModel.find();
-
-    if(posts){
-      res.status(200).json({msg : "Data fetched successfully", posts : posts})
+  try {
+    const cachedPosts = await redisClient.get('allPosts');
+    if (cachedPosts) {
+      return res.status(200).json({ msg: "Data fetched successfully", posts: JSON.parse(cachedPosts) });
     }
 
-  }catch(error){
+    const posts = await postModel.find();
+    if (posts) {
+      await redisClient.set('allPosts', JSON.stringify(posts), 'EX', 3600); // Cache for 1 hour
+      res.status(200).json({ msg: "Data fetched successfully", posts: posts });
+    } else {
+      res.status(404).json({ msg: "No posts found" });
+    }
+  } catch (error) {
     console.log(error.message);
-    res.json({msg : "Data can't fetch"});
+    res.status(500).json({ msg: "Data can't fetch" });
   }
 };
 
@@ -170,19 +172,19 @@ const update_post = async (req, res) => {
 
 // delete post
 const delete_post = async (req, res) => {
-  try{
+  try {
     const deletePost = await postModel.findByIdAndDelete(req.params.id);
 
-    if(deletePost){
-      res.status(200).json({msg : "Post deleted Successfully", post : deletePost});
+    if (deletePost) {
+      await redisClient.del(`post:${req.params.id}`);
+      await redisClient.del('allPosts');
+      res.status(200).json({ msg: "Post deleted successfully", post: deletePost });
+    } else {
+      res.status(400).json({ msg: "Post not deleted" });
     }
-    else{
-      res.json({msg : "Post not deleted"})
-    }
-
-  }catch(error){
-     console.log(error.message);
-     res.json({msg : "Post not deleted"});
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ msg: "Post not deleted" });
   }
 };
 
