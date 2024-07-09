@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon server.js"
   },
-  "author": "Ankush Chavhan",
+  "author": "Arpit",
   "license": "ISC",
   "dependencies": {
     "@emotion/react": "^11.9.3",
