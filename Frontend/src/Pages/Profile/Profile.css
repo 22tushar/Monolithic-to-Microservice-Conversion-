@@ -23,6 +23,7 @@
 }
 
 .profile_main_wrapper .left{
+   display: block;
    flex: 2;
    padding: 10px;
 }
