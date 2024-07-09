@@ -1,12 +1,7 @@
-// const cloudinary = require("cloudinary").v2;
 const postModel = require("../models/postModel");
 const { kafka } = require("../client");
 
-// cloudinary.config({
-//   cloud_name: process.env.CLOUDINARY_USER_NAME,
-//   api_key: process.env.CLOUDINARY_API_KEY,
-//   api_secret: process.env.CLOUDINARY_API_SECRET,
-// });
+
 const Redis = require('ioredis');
 
 const redisClient = new Redis();
