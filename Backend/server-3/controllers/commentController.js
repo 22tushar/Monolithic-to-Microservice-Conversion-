@@ -1,4 +1,5 @@
 const commentModel = require("../models/commentModel");
+const { kafka } = require("../client");
 
 const Redis = require('ioredis');
 
@@ -20,9 +21,21 @@ const post_comment = async (req, res) => {
       const comment = await commentModel.create({
         postId: req.body.postId,
         authorId: req.params.id,
-        comment: req.body.comment
+        comment: req.body.comment,
+        username:req.body.username
       });
   
+      if (comment) {
+        const producer = kafka.producer();
+  
+        await producer.connect();
+        await producer.send({
+          topic: 'comment-topic',
+          messages: [{ key: 'comment', value: JSON.stringify({ comment }) }],
+        });
+        console.log("Topic created!");
+      }
+
       if (comment) {
         // Invalidate the cache for all comments and specific post comments
         await redisClient.del('all_comments');

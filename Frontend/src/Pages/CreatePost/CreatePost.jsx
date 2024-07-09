@@ -39,7 +39,7 @@ const CreatePost = () => {
     formdata.append("description", description);
     formdata.append("category", category);
     formdata.append("blogImage", blogImage);
-    formdata.append("activeUserId", activeUser._id);
+    formdata.append("activeUserId", activeUser.name);
    
     axios
       .post("http://localhost:8001/api/posts/create-post", formdata, {

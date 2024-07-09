@@ -7,10 +7,10 @@ const notificationSchema = new mongoose.Schema({
         // required : true,
     },
     
-    // topic : {
-    //     type : String,
-    //     // required : true,
-    // },
+    topic : {
+        type : String,
+        // required : true,
+    },
     // partition : {
     //     type : String,
     //     // required : true,

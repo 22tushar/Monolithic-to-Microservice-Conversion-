@@ -20,6 +20,7 @@ const Comments = ({ post }) => {
       const res = await axios.post(`http://localhost:8002/api/comments/comment/${activeUser?._id}`, {
         postId: post._id,
         comment: comment,
+        username:activeUser.name
       });
 
       if (res.status === 200) {

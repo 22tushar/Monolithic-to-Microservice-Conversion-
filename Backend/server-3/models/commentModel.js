@@ -14,6 +14,10 @@ const commentSchema = new mongoose.Schema({
     comment : {
         type : String,
         required : true
+    },
+    username : {
+        type : String,
+        required : true
     }
 });
 

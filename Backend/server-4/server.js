@@ -10,7 +10,7 @@ require("dotenv").config();
 
 const fileUpload = require("express-fileupload");
 
-const {init} = require('./controllers/notyControllers')
+const {init, init1} = require('./controllers/notyControllers')
 const PORT = process.env.PORT || 8003;
 
 
@@ -36,6 +36,9 @@ app.use(fileUpload({
 // routes
 
 init()
+init1()
+
+app.use("/api/", require("./routes/notyRoutes"));
 // ########################################################################
 app.listen(PORT, () => {
     console.log(`Server is listening on http://localhost:${PORT}`);
